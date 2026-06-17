@@ -1,0 +1,3 @@
+# Runtime dependency for the terminal report. The SVG card and the engine
+# use only the Python standard library.
+rich>=13.0

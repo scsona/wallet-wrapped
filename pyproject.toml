@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wallet-wrapped"
+version = "1.0.0"
+description = "Spotify Wrapped, but for any crypto wallet — powered by the CoinStats Crypto API."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "scsona" }]
+keywords = ["crypto", "defi", "wallet", "coinstats", "portfolio", "svg"]
+dependencies = ["rich>=13.0"]
+
+[project.urls]
+Homepage = "https://github.com/scsona/wallet-wrapped"
+"CoinStats API" = "https://api.coinstats.app/"
+
+[project.scripts]
+wallet-wrapped = "wallet_wrapped.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools]
+packages = ["wallet_wrapped"]
+
+[tool.setuptools.package-data]
+wallet_wrapped = ["py.typed"]

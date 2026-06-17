@@ -1,0 +1,56 @@
+name: Update card
+
+# Regenerates assets/wrapped.svg and commits it back, so the README card stays
+# live. Set a repository secret named COINSTATS_API_KEY (Settings → Secrets and
+# variables → Actions) to use real data — without it, the card falls back to
+# bundled sample data, so forks never break.
+
+on:
+  schedule:
+    - cron: "17 */12 * * *"   # every 12 hours
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "wallet_wrapped/**"
+      - "scripts/generate_card.py"
+      - ".github/workflows/update-card.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-card
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Render the Wrapped card
+        env:
+          COINSTATS_API_KEY: ${{ secrets.COINSTATS_API_KEY }}
+          # The wallet featured on the live README card.
+          WALLET_ADDRESS: "0x94845333028B1204Fbe14E1278Fd4Adde46B22ce"
+        run: |
+          if [ -z "$COINSTATS_API_KEY" ]; then
+            echo "::notice::No COINSTATS_API_KEY secret set — using bundled sample data."
+          fi
+          python scripts/generate_card.py assets/wrapped.svg
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain assets/wrapped.svg)" ]; then
+            git add assets/wrapped.svg
+            git commit -m "chore: refresh wallet-wrapped card"
+            git push
+          else
+            echo "Card unchanged — nothing to commit."
+          fi
